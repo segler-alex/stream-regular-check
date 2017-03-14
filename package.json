@@ -1,0 +1,24 @@
+{
+  "name": "stream-regular-check",
+  "version": "1.0.0",
+  "description": "Go through entries in database and check with stream checker",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "NODE_ENV=production node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:segler-alex/stream-regular-check.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bluebird": "^3.4.7",
+    "express": "^4.14.0",
+    "mysql": "^2.13.0",
+    "request": "^2.79.0",
+    "request-promise-native": "^1.0.3",
+    "sequelize": "^3.30.2"
+  }
+}
