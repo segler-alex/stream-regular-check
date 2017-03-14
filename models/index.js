@@ -4,8 +4,16 @@ var fs = require('fs');
 var path = require('path');
 var Sequelize = require('sequelize');
 var basename = path.basename(module.filename);
-var env = process.env.NODE_ENV || 'development';
-var config = require(__dirname + '/../config/config.json')[env];
+var config = {
+    'username': process.env.MYSQL_USER,
+    'password': process.env.MYSQL_PASSWORD,
+    'database': process.env.MYSQL_DATABASE,
+    'host': process.env.DB_SERVER,
+    'dialect': 'mysql',
+    'define': {
+        'timestamps': false
+    }
+};
 var db = {};
 
 if (config.use_env_variable) {

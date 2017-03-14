@@ -1,7 +1,6 @@
 FROM mhart/alpine-node:6
 ADD package.json index.js /root/
 ADD models /root/models
-ADD config /root/config
 WORKDIR /root
 RUN npm install
 
