@@ -83,8 +83,6 @@ function waitForDb(cb) {
     models.sequelize.authenticate().then(() => {
         cb();
     }).catch((err) => {
-        logErr(err);
-        console.log(err);
         setTimeout(() => {
             waitForDb(cb);
         }, 2000);
@@ -106,7 +104,10 @@ function enqueueStations() {
         if (items.length > 0) {
             log('Found new items:' + items.length);
             for (var i = 0; i < items.length; i++) {
-                q.push(items[i]);
+                q.push({
+                    id:items[i].StationID,
+                    url:items[i].Url
+                });
             }
         } else {
             log('Found NO new items. Waiting 60 secs..');
