@@ -21,25 +21,26 @@ function drainedQueue() {
 }
 
 function saveStreamInfo(id, result) {
-    var values = {};
-    values.LastCheckTime = new Date();
-    values.LastCheckOK = false;
-    if (result) {
-        if (result.ok){
-            if (result.streams.length > 0){
-                values.LastCheckOK = true;
-                values.LastCheckOKTime = new Date();
-                var stream = result.streams[0];
-                values.Codec = stream.codec;
-                values.Bitrate = stream.bitrate;
-                values.UrlCache = stream.url;
+    return models.Station.findById(id).then((station) => {
+        station.LastCheckTime = new Date();
+        station.LastCheckOK = false;
+        if (result) {
+            if (result.ok) {
+                if (result.streams.length > 0) {
+                    station.LastCheckOK = true;
+                    station.LastCheckOKTime = new Date();
+                    var stream = result.streams[0];
+                    station.Codec = stream.codec;
+                    station.Bitrate = stream.bitrate;
+                    station.UrlCache = stream.url;
+                    if (!station.Tags) {
+                        station.Tags = stream.genres.join(',');
+                        log.info('Added tags to station:' + station.Tags);
+                    }
+                }
             }
         }
-    }
-    return models.Station.update(values, {
-        where: {
-            StationID: id
-        }
+        return station.save();
     });
 }
 
