@@ -4,6 +4,8 @@ var fs = require('fs');
 var path = require('path');
 var Sequelize = require('sequelize');
 var basename = path.basename(module.filename);
+const log = require('../log.js');
+
 var config = {
     'username': process.env.MYSQL_USER,
     'password': process.env.MYSQL_PASSWORD,
@@ -12,7 +14,8 @@ var config = {
     'dialect': 'mysql',
     'define': {
         'timestamps': false
-    }
+    },
+    'logging': log.trace
 };
 var db = {};
 
