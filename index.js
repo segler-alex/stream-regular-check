@@ -3,7 +3,7 @@
 const models = require('./models');
 const request = require('request-promise-native');
 const async = require('async');
-const colors = require('colors');
+const log = require('./log.js');
 
 var SERVICE = process.env.SERVICE;
 var CONCURRENCY = process.env.CONCURRENCY || 1;
@@ -11,16 +11,8 @@ var CONCURRENCY = process.env.CONCURRENCY || 1;
 var q = async.queue(streamWorker, CONCURRENCY);
 q.drain = drainedQueue;
 
-function log(msg) {
-    console.log((new Date()).toISOString().green + ' ' + msg.grey);
-}
-
-function logErr(msg) {
-    console.log((new Date()).toISOString().green + ' ' + msg.red);
-}
-
 if (!SERVICE) {
-    logErr('SERVICE environment variable is not set!');
+    log.error('SERVICE environment variable is not set!');
     process.exit(1);
 }
 
@@ -31,11 +23,18 @@ function drainedQueue() {
 function saveStreamInfo(id, result) {
     var values = {};
     values.LastCheckTime = new Date();
+    values.LastCheckOK = false;
     if (result) {
-        values.LastCheckOK = true;
-        values.LastCheckOKTime = new Date();
-    } else {
-        values.LastCheckOK = false;
+        if (result.ok){
+            if (result.streams.length > 0){
+                values.LastCheckOK = true;
+                values.LastCheckOKTime = new Date();
+                var stream = result.streams[0];
+                values.Codec = stream.codec;
+                values.Bitrate = stream.bitrate;
+                values.UrlCache = stream.url;
+            }
+        }
     }
     return models.Station.update(values, {
         where: {
@@ -45,19 +44,20 @@ function saveStreamInfo(id, result) {
 }
 
 function streamWorker(task, cb) {
-    log('Started stream check: ' + task.url);
+    log.info('Started stream check: ' + task.url);
     var result;
     checkStream(task.id, task.url, false).then((_result) => {
         result = _result;
+        log.trace(JSON.stringify(result, null, ' '));
         return null;
     }).catch((err) => {
-        logErr('Failed stream check: ' + task.url + '   ' + err);
+        log.error('Failed stream check: ' + task.url + '   ' + err);
     }).then(() => {
-        log('Saving stream check ok: ' + task.url);
+        log.debug('Saving stream check ok: ' + task.url);
         return saveStreamInfo(task.id, result);
     }).then(() => {
-        log('Finished stream check: ' + task.url);
-        cb();
+        log.info('Finished stream check: ' + task.url);
+        setTimeout(cb, 10000);
     });
 }
 
@@ -68,23 +68,35 @@ function checkStream(id, url, multi) {
             url: url
         }
     }).then((result) => {
-        return {
-            id: id,
-            url: url,
-            multi: multi,
-            result: result
-        };
+        result.id = id;
+        result.url = url;
+        result.multi = multi;
+        return result;
     });
     return r;
 }
 
 function waitForDb(cb) {
-    log('Wait for db..');
+    log.info('Wait for db..');
     models.sequelize.authenticate().then(() => {
         cb();
-    }).catch((err) => {
+    }).catch(() => {
         setTimeout(() => {
             waitForDb(cb);
+        }, 2000);
+    });
+}
+
+function waitForStreamChecker(cb) {
+    log.info('Wait for stream-check..');
+    request.post({
+        url: 'http://' + SERVICE + '/status',
+        json: {}
+    }).then(() => {
+        cb();
+    }).catch(() => {
+        setTimeout(() => {
+            waitForStreamChecker(cb);
         }, 2000);
     });
 }
@@ -102,15 +114,15 @@ function enqueueStations() {
         limit: 10
     }).then((items) => {
         if (items.length > 0) {
-            log('Found new items:' + items.length);
+            log.info('Found new items:' + items.length);
             for (var i = 0; i < items.length; i++) {
                 q.push({
-                    id:items[i].StationID,
-                    url:items[i].Url
+                    id: items[i].StationID,
+                    url: items[i].Url
                 });
             }
         } else {
-            log('Found NO new items. Waiting 60 secs..');
+            log.info('Found NO new items. Waiting 60 secs..');
             setTimeout(enqueueStations, 60 * 1000);
         }
     });
@@ -120,4 +132,8 @@ function main() {
     enqueueStations();
 }
 
-waitForDb(main);
+waitForDb(() => {
+    waitForStreamChecker(() => {
+        main();
+    });
+});
