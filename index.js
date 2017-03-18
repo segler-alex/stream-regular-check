@@ -6,6 +6,7 @@ const async = require('async');
 const log = require('./log.js');
 
 var SERVICE = process.env.SERVICE;
+var DEBUG = process.env.DEBUG;
 var CONCURRENCY = process.env.CONCURRENCY || 1;
 
 var q = async.queue(streamWorker, CONCURRENCY);
@@ -59,7 +60,11 @@ function streamWorker(task, cb) {
         return saveStreamInfo(task.id, result);
     }).then(() => {
         log.info('Finished stream check: ' + task.url);
-        setTimeout(cb, 10000);
+        if (DEBUG){
+            setTimeout(cb, 10000);
+        }else{
+            cb();
+        }
     });
 }
 
