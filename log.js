@@ -21,35 +21,35 @@ function getTimeString() {
 function trace(msg) {
     if (level > 4) {
         msg = decodeError(msg);
-        console.log(getTimeString() + ' ' + msg.grey);
+        console.log(getTimeString() + ' TRACE ' + msg.grey);
     }
 }
 
 function debug(msg) {
     if (level > 3) {
         msg = decodeError(msg);
-        console.log(getTimeString() + ' ' + msg.white);
+        console.log(getTimeString() + ' DEBUG ' + msg.white);
     }
 }
 
 function info(msg) {
     if (level > 2) {
         msg = decodeError(msg);
-        console.log(getTimeString() + ' ' + msg.green);
+        console.log(getTimeString() + ' INFO  ' + msg.green);
     }
 }
 
 function warn(msg) {
     if (level > 1) {
         msg = decodeError(msg);
-        console.log(getTimeString() + ' ' + msg.yellow);
+        console.log(getTimeString() + ' WARN  ' + msg.yellow);
     }
 }
 
 function error(msg) {
     if (level > 0) {
         msg = decodeError(msg);
-        console.log(getTimeString() + ' ' + msg.red);
+        console.log(getTimeString() + ' ERROR ' + msg.red);
     }
 }
 
