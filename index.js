@@ -33,6 +33,7 @@ function saveStreamInfo(id, result) {
                     station.Codec = stream.codec;
                     station.Bitrate = stream.bitrate;
                     station.UrlCache = stream.url;
+                    station.Hls = stream.hls;
                     if (!station.Tags) {
                         station.Tags = stream.genres.join(',');
                         log.info('Added tags to station:' + station.Tags);

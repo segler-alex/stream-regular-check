@@ -20,6 +20,7 @@ module.exports = function(sequelize, DataTypes) {
         clickcount: DataTypes.INTEGER,
         ClickTrend: DataTypes.INTEGER,
         ClickTimestamp: DataTypes.DATE,
+        Hls: DataTypes.BOOLEAN,
         Codec: DataTypes.STRING,
         LastCheckOK: DataTypes.BOOLEAN,
         LastCheckTime: DataTypes.DATE,
