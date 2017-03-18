@@ -36,8 +36,10 @@ function saveStreamInfo(id, result) {
                     station.UrlCache = stream.url;
                     station.Hls = stream.hls;
                     if (!station.Tags) {
-                        station.Tags = stream.genres.join(',');
-                        log.info('Added tags to station:' + station.Tags);
+                        if (stream.genres){
+                            station.Tags = stream.genres.join(',');
+                            log.info('Added tags to station:' + station.Tags);
+                        }
                     }
                 }
             }
