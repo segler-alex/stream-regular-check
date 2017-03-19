@@ -36,7 +36,7 @@ function saveStreamInfo(id, result) {
                     station.UrlCache = stream.url;
                     station.Hls = stream.hls;
                     if (!station.Tags) {
-                        if (stream.genres){
+                        if (stream.genres) {
                             station.Tags = stream.genres.join(',');
                             log.info('Added tags to station:' + station.Tags);
                         }
@@ -49,7 +49,7 @@ function saveStreamInfo(id, result) {
 }
 
 function streamWorker(task, cb) {
-    log.info('Started stream check: ' + task.url);
+    log.debug('Started stream check: ' + task.url);
     var result;
     checkStream(task.id, task.url, false).then((_result) => {
         result = _result;
@@ -61,10 +61,20 @@ function streamWorker(task, cb) {
         log.debug('Saving stream check ok: ' + task.url);
         return saveStreamInfo(task.id, result);
     }).then(() => {
-        log.info('Finished stream check: ' + task.url);
-        if (DEBUG){
+        var streamCount = 0;
+        if (result) {
+            if (result.streams) {
+                if (result.streams.length > 0) {
+                    streamCount = result.streams.length;
+
+                }
+            }
+        }
+        log.info((streamCount > 0 ? '+' : '-') + ' usable streams=' + streamCount + ' @ address ' + task.url);
+
+        if (DEBUG) {
             setTimeout(cb, 10000);
-        }else{
+        } else {
             cb();
         }
     });
