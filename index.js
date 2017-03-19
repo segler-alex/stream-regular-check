@@ -7,7 +7,8 @@ const log = require('./log.js');
 
 var SERVICE = process.env.SERVICE;
 var DEBUG = process.env.DEBUG;
-var CONCURRENCY = process.env.CONCURRENCY || 1;
+var CONCURRENCY = parseInt(process.env.CONCURRENCY) || 1;
+var QUEUE = parseInt(process.env.CONCURRENCY) || 10;
 
 var q = async.queue(streamWorker, CONCURRENCY);
 q.drain = drainedQueue;
@@ -132,7 +133,7 @@ function enqueueStations() {
         order: [
             ['LastCheckTime', 'ASC']
         ],
-        limit: 10
+        limit: QUEUE
     }).then((items) => {
         if (items.length > 0) {
             log.info('Found new items:' + items.length);
