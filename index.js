@@ -27,7 +27,7 @@ function saveStreamInfo(id, result) {
         station.LastCheckTime = new Date();
         station.LastCheckOK = false;
         if (result) {
-            if (result.ok) {
+            if (result.streams) {
                 if (result.streams.length > 0) {
                     station.LastCheckOK = true;
                     station.LastCheckOKTime = new Date();
@@ -73,7 +73,11 @@ function streamWorker(task, cb) {
                 }
             }
         }
-        log.info((streamCount > 0 ? '+' : '-') + ' usable streams=' + streamCount + ' @ address ' + task.url);
+        if (streamCount > 0){
+            log.info('+ usable streams=' + streamCount + ' @ address ' + task.url);
+        }else{
+            log.warn('- usable streams=' + streamCount + ' @ address ' + task.url);
+        }
 
         if (DEBUG) {
             setTimeout(cb, 10000);
