@@ -37,8 +37,10 @@ function saveStreamInfo(id, result) {
                     station.Hls = stream.hls;
                     if (!station.Tags) {
                         if (stream.genres) {
-                            station.Tags = stream.genres.join(',');
-                            log.info('Added tags to station:' + station.Tags);
+                            if (stream.genres.length > 0) {
+                                station.Tags = stream.genres.join(',');
+                                log.debug('* Added tags ' + station.Tags + ' to station' + station.Url);
+                            }
                         }
                     }
                 }
